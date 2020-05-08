@@ -8,6 +8,11 @@ unset HISTFILE
 apt-get -y autoremove
 apt-get -y autoclean
 
+if [[ -f /var/lib/cloud/sem/config_scripts_per_once.once ]]
+then
+  rm /var/lib/cloud/sem/config_scripts_per_once.once
+fi
+
 find /var/log -mtime -1 -type f -exec truncate -s 0 {} \;
 rm -rf /var/log/*.gz /var/log/*.[0-9] /var/log/*-???????? /var/log/*.log
 rm -rf /var/lib/cloud/instances/*

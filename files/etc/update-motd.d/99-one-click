@@ -2,13 +2,17 @@
 #
 # Configured as part of the DigitalOcean 1-Click Image build process
 
+. /root/.digitalocean_password
 myip=$(hostname -I | awk '{print$1}')
+export TERM=xterm-256color
 cat <<EOF
 ********************************************************************************
 
-This is the text that will be shown in the MOTD users see when they log in via
-SSH.  This copy should include links to documentation or product informaiton
-along with any information that would helpful to users.
+Welcome to DigitalOcean's One-Click Ghost Droplet.
+To keep this Droplet secure, the UFW firewall is enabled. 
+All ports are BLOCKED except 22 (SSH), 80 (HTTP), and 443 (HTTPS).
+
+For help and more information, visit http://do.co/ghost1804
 
 ********************************************************************************
 To delete this message of the day: rm -rf $(readlink -f ${0})
