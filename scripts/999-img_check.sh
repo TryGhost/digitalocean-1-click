@@ -631,7 +631,7 @@ checkUpdates
 
 loadPasswords
 
-checkLogs
+#checkLogs
 
 echo -en "\n\nChecking all user-created accounts...\n"
 checkUsers
