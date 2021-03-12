@@ -29,7 +29,7 @@ To start adapting this configuration for your own image, you can customize some 
 
 * `do_api_token` defines the DO API Token used to create resources via DigitalOcean's API. By default it is set to the value of the `DIGITALOCEAN_API_TOKEN` environment variable.
 * `image_name` defines the name of the resulting snapshot, which by default is `ghost-snapshot-` with a UNIX timestamp appended.
-* `node_version` defines the apt repo to use to install Node JS, which by default is `node_12.x`.
+* `node_version` defines the apt repo to use to install Node JS, which by default is `node_14.x`.
 
 You can also modify these variables at runtime by using [the `-var` flag](https://www.packer.io/docs/templates/user-variables.html#setting-variables).
 
