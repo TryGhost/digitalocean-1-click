@@ -24,7 +24,7 @@ mysqladmin -u root -h localhost password ${root_mysql_pass} 2>/dev/null
 
 # Create the Ghost MySQL user and grant permissions to them
 mysql -uroot -p${root_mysql_pass} \
-      -e "CREATE USER 'ghost'@'localhost' IDENTIFIED BY '${ghost_mysql_pass}'" 2>/dev/null 
+      -e "CREATE USER 'ghost'@'localhost' IDENTIFIED WITH mysql_native_password BY '${ghost_mysql_pass}'" 2>/dev/null
 
 mysql -uroot -p${root_mysql_pass} \
       -e "GRANT ALL PRIVILEGES ON ghost_production.* TO ghost@localhost" 2>/dev/null 
