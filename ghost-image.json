@@ -33,6 +33,9 @@
     },
     {
       "type": "shell",
+      "environment_vars": [
+        "DEBIAN_FRONTEND=noninteractive"
+      ],
       "inline": [
         "cloud-init status --wait",
         "apt -qqy update",
