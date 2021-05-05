@@ -4,6 +4,7 @@
     "image_name": "ghost-1click-{{timestamp}}",
     "node_version": "node_14.x"
   },
+  "sensitive-variables": ["do_api_token"],
   "builders": [
     {
       "type": "digitalocean",
