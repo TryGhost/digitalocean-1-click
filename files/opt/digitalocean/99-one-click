@@ -9,7 +9,7 @@ echo "
 -------------------------------------------------------------------------------
 
 The $(tput setaf 6)ufw$(tput sgr0) firewall is enabled. All ports except for 22, 80, and 443 are BLOCKED.
-You can find more information on using this image at: $(tput setaf 6)http://do.co/ghostapp$(tput sgr0)
+You can find more information on using this image at: $(tput setaf 6)https://marketplace.digitalocean.com/apps/ghost$(tput sgr0)
 
 ------------------------------------------------------------------------------
 
