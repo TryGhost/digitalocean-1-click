@@ -5,6 +5,8 @@ cat >> /root/.bashrc <<"EOM"
 
 export TERM=xterm-256color
 
+if [ ! -f "/var/www/ghost/config.production.json" ]; then
+
 # Run bootstrap during first login
 
 echo "
@@ -37,6 +39,8 @@ For any further commands, please switch to the $(tput setaf 6)ghost-mgr$(tput sg
 ------------------------------------------------------------------------------
 
 "
+
+fi
 
 EOM
 
