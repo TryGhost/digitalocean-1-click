@@ -19,6 +19,9 @@ ghost_mysql_pass=$(openssl rand -hex 24)
 debian_sys_maint_mysql_pass=$(openssl rand -hex 24)
 myip=$(hostname -I | awk '{print$1}')
 
+# Ensure MySQL is running
+while ! mysqladmin ping -h"localhost" --silent; do sleep 1; done
+
 mysqladmin -u root -h localhost create ghost_production 2>/dev/null 
 mysqladmin -u root -h localhost password ${root_mysql_pass} 2>/dev/null 
 
