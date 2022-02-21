@@ -13,20 +13,20 @@ export TERM=xterm-256color
 # prevent locale warnings
 touch /var/lib/cloud/instance/locale-check.skip
 
-# Generate MySQL passwords
-root_mysql_pass=$(openssl rand -hex 24)
-debian_sys_maint_mysql_pass=$(openssl rand -hex 24)
+GHOST_HOST="${DATABASE_HOST:-localhost}"
+GHOST_PORT="${DATABASE_PORT:-3306}"
+GHOST_DATABASE="${DATABASE_DATABASE:-ghost_production}"
+GHOST_USERNAME="${DATABASE_USERNAME:-root}"
+GHOST_PASSWORD="${DATABASE_PASSWORD:-$(openssl rand -hex 24)}"
+
 myip=$(hostname -I | awk '{print$1}')
 
 # Ensure MySQL is running
-while ! mysqladmin ping -h"localhost" --silent; do sleep 1; done
-
-mysql -u root -h localhost \
-    -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH caching_sha2_password BY '${root_mysql_pass}'; FLUSH PRIVILEGES;"
+while ! mysqladmin ping -h"$GHOST_HOST" -P $GHOST_PORT --silent; do sleep 1; done
 
 # Save the passwords
 cat > /root/.digitalocean_password <<EOM
-root_mysql_pass="${root_mysql_pass}"
+root_mysql_pass="${GHOST_PASSWORD}"
 EOM
 
 # Set up Postfix defaults
@@ -35,22 +35,29 @@ sed -i "s/myhostname \= ghost/myhostname = $hostname/g" /etc/postfix/main.cf;
 sed -i "s/inet_interfaces = all/inet_interfaces = loopback-only/g" /etc/postfix/main.cf;
 systemctl restart postfix &
 
-mysql -uroot -p${root_mysql_pass} \
-      -e "ALTER USER 'debian-sys-maint'@'localhost' IDENTIFIED BY '${debian_sys_maint_mysql_pass}'" 2>/dev/null 
+# If we're running the DB locally, change the DB maintenance user password
+if [ "$GHOST_HOST" = "localhost" ]; then
+     mysql -u "$GHOST_USERNAME" -h "$GHOST_HOST" \
+        -e "ALTER USER '$GHOST_USERNAME'@'$GHOST_HOST' IDENTIFIED WITH caching_sha2_password BY '${GHOST_PASSWORD}'; FLUSH PRIVILEGES;"
 
-cat > /etc/mysql/debian.cnf <<EOM
-# Automatically generated for Debian scripts. DO NOT TOUCH!
-[client]
-host     = localhost
-user     = debian-sys-maint
-password = ${debian_sys_maint_mysql_pass}
-socket   = /var/run/mysqld/mysqld.sock
-[mysql_upgrade]
-host     = localhost
-user     = debian-sys-maint
-password = ${debian_sys_maint_mysql_pass}
-socket   = /var/run/mysqld/mysqld.sock
+    debian_sys_maint_mysql_pass=$(openssl rand -hex 24)
+    mysql -u "$GHOST_USERNAME" -p"$GHOST_PASSWORD" \
+          -e "ALTER USER 'debian-sys-maint'@'localhost' IDENTIFIED BY '${debian_sys_maint_mysql_pass}'" 2>/dev/null
+
+    cat > /etc/mysql/debian.cnf <<EOM
+    # Automatically generated for Debian scripts. DO NOT TOUCH!
+    [client]
+    host     = localhost
+    user     = debian-sys-maint
+    password = ${debian_sys_maint_mysql_pass}
+    socket   = /var/run/mysqld/mysqld.sock
+    [mysql_upgrade]
+    host     = localhost
+    user     = debian-sys-maint
+    password = ${debian_sys_maint_mysql_pass}
+    socket   = /var/run/mysqld/mysqld.sock
 EOM
+fi
 
 # This is where the magic starts
 
@@ -78,10 +85,11 @@ read wait
 # Install Ghost
 sudo -iu ghost-mgr ghost install --auto \
   --db=mysql \
-  --dbhost=localhost \
-  --dbname=ghost_production \
-  --dbuser=root \
-  --dbpass=${root_mysql_pass} \
+  --dbhost="$GHOST_HOST" \
+  --dbport="$GHOST_PORT" \
+  --dbname="$GHOST_DATABASE" \
+  --dbuser="$GHOST_USERNAME" \
+  --dbpass="$GHOST_PASSWORD" \
   --dir=/var/www/ghost \
   --start
 
