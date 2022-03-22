@@ -17,7 +17,7 @@ Configuring DigitalOcean 1-Click Ghost installation.
 Please wait a minute while your 1-Click is configured. 
 
 Once complete, you are encouraged to run $(tput setaf 3)mysql_secure_installation$(tput sgr0) to ready
-your server for production. Passwords have been saved to:
+your server for production. The root MySQL password has been saved to:
 
     $(tput setaf 6)root/.digitalocean_password$(tput sgr0)
 

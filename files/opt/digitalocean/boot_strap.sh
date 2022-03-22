@@ -15,27 +15,18 @@ touch /var/lib/cloud/instance/locale-check.skip
 
 # Generate MySQL passwords
 root_mysql_pass=$(openssl rand -hex 24)
-ghost_mysql_pass=$(openssl rand -hex 24)
 debian_sys_maint_mysql_pass=$(openssl rand -hex 24)
 myip=$(hostname -I | awk '{print$1}')
 
 # Ensure MySQL is running
 while ! mysqladmin ping -h"localhost" --silent; do sleep 1; done
 
-mysqladmin -u root -h localhost create ghost_production 2>/dev/null 
-mysqladmin -u root -h localhost password ${root_mysql_pass} 2>/dev/null 
-
-# Create the Ghost MySQL user and grant permissions to them
-mysql -uroot -p${root_mysql_pass} \
-      -e "CREATE USER 'ghost'@'localhost' IDENTIFIED WITH mysql_native_password BY '${ghost_mysql_pass}'" 2>/dev/null
-
-mysql -uroot -p${root_mysql_pass} \
-      -e "GRANT ALL PRIVILEGES ON ghost_production.* TO ghost@localhost" 2>/dev/null 
+mysql -u root -h localhost \
+    -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH caching_sha2_password BY '${root_mysql_pass}'; FLUSH PRIVILEGES;"
 
 # Save the passwords
 cat > /root/.digitalocean_password <<EOM
 root_mysql_pass="${root_mysql_pass}"
-ghost_mysql_pass="${ghost_mysql_pass}"
 EOM
 
 # Set up Postfix defaults
@@ -89,8 +80,8 @@ sudo -iu ghost-mgr ghost install --auto \
   --db=mysql \
   --dbhost=localhost \
   --dbname=ghost_production \
-  --dbuser=ghost \
-  --dbpass=${ghost_mysql_pass} \
+  --dbuser=root \
+  --dbpass=${root_mysql_pass} \
   --dir=/var/www/ghost \
   --start
 
