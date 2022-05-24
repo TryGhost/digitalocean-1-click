@@ -49,6 +49,9 @@ if [ "$GHOST_HOST" = "localhost" ]; then
     password = ${debian_sys_maint_mysql_pass}
     socket   = /var/run/mysqld/mysqld.sock
 EOM
+else
+    systemctl stop mysql
+    systemctl disable mysql
 fi
 
 # This is where the magic starts
