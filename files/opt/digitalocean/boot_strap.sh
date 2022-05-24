@@ -2,14 +2,6 @@
 
 export TERM=xterm-256color
 
-# Commented out because exec stops this being interactive
-# Logs please...
-# log_f="${LOG_F:-/var/log/do-1click.log}"
-# touch ${log_f}
-# chmod 0600 ${log_f}
-## Send the output from this file to stdout AND logs
-# exec &> >(tee -a "$log_f")
-
 # prevent locale warnings
 touch /var/lib/cloud/instance/locale-check.skip
 
