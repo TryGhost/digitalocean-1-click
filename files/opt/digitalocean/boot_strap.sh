@@ -50,8 +50,8 @@ if [ "$GHOST_HOST" = "localhost" ]; then
     socket   = /var/run/mysqld/mysqld.sock
 EOM
 else
-    systemctl stop mysql
-    systemctl disable mysql
+    systemctl stop mysql 2>/dev/null
+    systemctl disable mysql 2>/dev/null
 fi
 
 # This is where the magic starts
