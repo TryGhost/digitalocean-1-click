@@ -7,7 +7,7 @@ touch /var/lib/cloud/instance/locale-check.skip
 
 GHOST_HOST="${DATABASE_HOST:-localhost}"
 GHOST_PORT="${DATABASE_PORT:-3306}"
-GHOST_DATABASE="${DATABASE_DATABASE:-ghost_production}"
+GHOST_DATABASE="${DATABASE_DB:-ghost_production}"
 GHOST_USERNAME="${DATABASE_USERNAME:-root}"
 GHOST_PASSWORD="${DATABASE_PASSWORD:-$(openssl rand -hex 24)}"
 
