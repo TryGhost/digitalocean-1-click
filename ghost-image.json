@@ -10,7 +10,7 @@
     {
       "type": "digitalocean",
       "api_token": "{{user `do_api_token`}}",
-      "image": "ubuntu-20-04-x64",
+      "image": "ubuntu-22-04-x64",
       "region": "ams3",
       "size": "s-1vcpu-1gb",
       "ssh_username": "root",
