@@ -5,7 +5,7 @@ export TERM=xterm-256color
 # prevent locale warnings
 touch /var/lib/cloud/instance/locale-check.skip
 
-GHOST_HOST="${DATABASE_HOST:-localhost}"
+GHOST_HOST="${DATABASE_HOST:-127.0.0.1}"
 GHOST_PORT="${DATABASE_PORT:-3306}"
 GHOST_DATABASE="${DATABASE_DB:-ghost_production}"
 GHOST_USERNAME="${DATABASE_USERNAME:-root}"
@@ -28,13 +28,17 @@ sed -i "s/inet_interfaces = all/inet_interfaces = loopback-only/g" /etc/postfix/
 systemctl restart postfix &
 
 # If we're running the DB locally, change the DB maintenance user password
-if [ "$GHOST_HOST" = "localhost" ]; then
-     mysql -u "$GHOST_USERNAME" -h "$GHOST_HOST" \
-        -e "ALTER USER '$GHOST_USERNAME'@'$GHOST_HOST' IDENTIFIED WITH caching_sha2_password BY '${GHOST_PASSWORD}'; FLUSH PRIVILEGES;"
+if [ "$GHOST_HOST" = "127.0.0.1" ]; then
+    mysql -u "$GHOST_USERNAME" -h "localhost" \
+        -e "ALTER USER '$GHOST_USERNAME'@'localhost' IDENTIFIED WITH caching_sha2_password BY '${GHOST_PASSWORD}';
+            CREATE USER '$GHOST_USERNAME'@'127.0.0.1' IDENTIFIED WITH caching_sha2_password BY '${GHOST_PASSWORD}';
+            ALTER USER '$GHOST_USERNAME'@'127.0.0.1' IDENTIFIED WITH caching_sha2_password BY '${GHOST_PASSWORD}';
+            GRANT ALL PRIVILEGES ON *.* TO '$GHOST_USERNAME'@'127.0.0.1';
+            FLUSH PRIVILEGES;"
 
     debian_sys_maint_mysql_pass=$(openssl rand -hex 24)
     mysql -u "$GHOST_USERNAME" -p"$GHOST_PASSWORD" \
-          -e "ALTER USER 'debian-sys-maint'@'localhost' IDENTIFIED BY '${debian_sys_maint_mysql_pass}'" 2>/dev/null
+        -e "ALTER USER 'debian-sys-maint'@'localhost' IDENTIFIED BY '${debian_sys_maint_mysql_pass}'" 2>/dev/null
 
     cat > /etc/mysql/debian.cnf <<EOM
     # Automatically generated for Debian scripts. DO NOT TOUCH!
