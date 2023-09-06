@@ -15,6 +15,7 @@ cat > /etc/sudoers.d/99-do-ghost <<EOM
 ghost-mgr ALL=(ALL) NOPASSWD:ALL
 EOM
 
+chmod 755 /var/www
 mkdir -p /var/www/ghost
 chown -R ghost-mgr: /var/www/ghost
 chmod 775 /var/www/ghost
