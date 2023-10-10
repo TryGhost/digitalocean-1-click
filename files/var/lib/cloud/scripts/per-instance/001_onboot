@@ -26,7 +26,7 @@ your server for production. The root MySQL password has been saved to:
 "
 
 # Perform the actual execution
-bash --norc /opt/digitalocean/boot_strap.sh
+bash --norc /opt/ghost-setup/boot_strap.sh
 cp /etc/skel/.bashrc /root/.bashrc
 
 echo "

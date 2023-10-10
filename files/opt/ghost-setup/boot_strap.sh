@@ -94,7 +94,7 @@ sudo -iu ghost-mgr ghost install --auto \
 
 
 # Final cleanup
-cp /opt/digitalocean/99-one-click /etc/update-motd.d/99-one-click
+cp /opt/ghost-setup/99-one-click /etc/update-motd.d/99-one-click
 chmod 0755 /etc/update-motd.d/99-one-click
 
 # Remove nginx default site
