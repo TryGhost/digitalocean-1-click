@@ -33,7 +33,7 @@ if [ "$GHOST_HOST" = "127.0.0.1" ]; then
         -e "ALTER USER '$GHOST_USERNAME'@'localhost' IDENTIFIED WITH caching_sha2_password BY '${GHOST_PASSWORD}';
             CREATE USER '$GHOST_USERNAME'@'127.0.0.1' IDENTIFIED WITH caching_sha2_password BY '${GHOST_PASSWORD}';
             ALTER USER '$GHOST_USERNAME'@'127.0.0.1' IDENTIFIED WITH caching_sha2_password BY '${GHOST_PASSWORD}';
-            GRANT ALL PRIVILEGES ON *.* TO '$GHOST_USERNAME'@'127.0.0.1';
+            GRANT ALL PRIVILEGES ON *.* TO '$GHOST_USERNAME'@'127.0.0.1' WITH GRANT OPTION;
             FLUSH PRIVILEGES;"
 
     debian_sys_maint_mysql_pass=$(openssl rand -hex 24)
