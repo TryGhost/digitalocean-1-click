@@ -72,15 +72,10 @@ SHADOW=$(cat /etc/shadow)
 function checkAgent {
   # Check for the presence of the DO directory in the filesystem
   if [ -d /opt/digitalocean ];then
-     echo -en "\e[41m[FAIL]\e[0m DigitalOcean directory detected.\n"
+    echo -en "\e[41m[FAIL]\e[0m DigitalOcean directory detected.\n"
             ((FAIL++))
             STATUS=2
-      if [[ $OS == "CentOS Linux" ]] || [[ $OS == "CentOS Stream" ]] || [[ $OS == "Rocky Linux" ]] || [[ $OS == "AlmaLinux" ]]; then
-        echo "To uninstall the agent: 'sudo yum remove droplet-agent'"
-        echo "To remove the DO directory: 'find /opt/digitalocean/ -type d -empty -delete'"
-      elif [[ $OS == "Ubuntu" ]] || [[ $OS == "Debian" ]]; then
-        echo "To uninstall the agent and remove the DO directory: 'sudo apt-get purge droplet-agent'"
-      fi
+    echo "To uninstall the agent and remove the DO directory: 'sudo apt-get purge droplet-agent'"
   else
     echo -en "\e[32m[PASS]\e[0m DigitalOcean Monitoring agent was not found\n"
     ((PASS++))
@@ -357,35 +352,6 @@ function checkFirewall {
         # shellcheck disable=SC2031
         ((WARN++))
       fi
-    elif [[ $OS == "CentOS Linux" ]] || [[ $OS == "CentOS Stream" ]] || [[ $OS == "Rocky Linux" ]] || [[ $OS == "AlmaLinux" ]]; then
-      if [ -f /usr/lib/systemd/system/csf.service ]; then
-        fw="csf"
-        if [[ $(systemctl status $fw >/dev/null 2>&1) ]]; then
-
-        FW_VER="\e[32m[PASS]\e[0m Firewall service (${fw}) is active\n"
-        ((PASS++))
-        elif cmdExists "firewall-cmd"; then
-          if [[ $(systemctl is-active firewalld >/dev/null 2>&1 && echo 1 || echo 0) ]]; then
-           FW_VER="\e[32m[PASS]\e[0m Firewall service (${fw}) is active\n"
-          ((PASS++))
-          else
-            FW_VER="\e[93m[WARN]\e[0m No firewall is configured. Ensure ${fw} is installed and configured\n"
-          ((WARN++))
-          fi
-        else
-          FW_VER="\e[93m[WARN]\e[0m No firewall is configured. Ensure ${fw} is installed and configured\n"
-        ((WARN++))
-        fi
-      else
-        fw="firewalld"
-        if [[ $(systemctl is-active firewalld >/dev/null 2>&1 && echo 1 || echo 0) ]]; then
-          FW_VER="\e[32m[PASS]\e[0m Firewall service (${fw}) is active\n"
-        ((PASS++))
-        else
-          FW_VER="\e[93m[WARN]\e[0m No firewall is configured. Ensure ${fw} is installed and configured\n"
-        ((WARN++))
-        fi
-      fi
     elif [[ "$OS" =~ Debian.* ]]; then
       # user could be using a number of different services for managing their firewall
       # we will check some of the most common
@@ -423,54 +389,37 @@ function checkFirewall {
 
 }
 function checkUpdates {
-    if [[ $OS == "Ubuntu" ]] || [[ "$OS" =~ Debian.* ]]; then
-        # Ensure /tmp exists and has the proper permissions before
-        # checking for security updates
-        # https://github.com/digitalocean/marketplace-partners/issues/94
-        if [[ ! -d /tmp ]]; then
-          mkdir /tmp
-        fi
-        chmod 1777 /tmp
+    # Ensure /tmp exists and has the proper permissions before
+    # checking for security updates
+    # https://github.com/digitalocean/marketplace-partners/issues/94
+    if [[ ! -d /tmp ]]; then
+        mkdir /tmp
+    fi
+    chmod 1777 /tmp
 
-        echo -en "\nUpdating apt package database to check for security updates, this may take a minute...\n\n"
-        apt-get -y update > /dev/null
+    echo -en "\nUpdating apt package database to check for security updates, this may take a minute...\n\n"
+    apt-get -y update > /dev/null
 
-        uc=$(apt-get --just-print upgrade | grep -i "security" -c)
-        if [[ $uc -gt 0 ]]; then
-          update_count=$(( uc / 2 ))
-        else
-          update_count=0
-        fi
-
-        if [[ $update_count -gt 0 ]]; then
-            echo -en "\e[41m[FAIL]\e[0m There are ${update_count} security updates available for this image that have not been installed.\n"
-            echo -en
-            echo -en "Here is a list of the security updates that are not installed:\n"
-            sleep 2
-            apt-get --just-print upgrade | grep -i security | awk '{print $2}' | awk '!seen[$0]++'
-            echo -en
-            # shellcheck disable=SC2031
-            ((FAIL++))
-            STATUS=2
-        else
-            echo -en "\e[32m[PASS]\e[0m There are no pending security updates for this image.\n\n"
-            ((PASS++))
-        fi
-    elif [[ $OS == "CentOS Linux" ]] || [[ $OS == "CentOS Stream" ]] || [[ $OS == "Rocky Linux" ]] || [[ $OS == "AlmaLinux" ]]; then
-        echo -en "\nChecking for available security updates, this may take a minute...\n\n"
-
-        update_count=$(yum check-update --security --quiet | wc -l)
-         if [[ $update_count -gt 0 ]]; then
-            echo -en "\e[41m[FAIL]\e[0m There are ${update_count} security updates available for this image that have not been installed.\n"
-            ((FAIL++))
-            STATUS=2
-        else
-            echo -en "\e[32m[PASS]\e[0m There are no pending security updates for this image.\n"
-            ((PASS++))
-        fi
+    uc=$(apt-get --just-print upgrade | grep -i "security" -c)
+    if [[ $uc -gt 0 ]]; then
+        update_count=$(( uc / 2 ))
     else
-        echo "Error encountered"
-        exit 1
+        update_count=0
+    fi
+
+    if [[ $update_count -gt 0 ]]; then
+        echo -en "\e[41m[FAIL]\e[0m There are ${update_count} security updates available for this image that have not been installed.\n"
+        echo -en
+        echo -en "Here is a list of the security updates that are not installed:\n"
+        sleep 2
+        apt-get --just-print upgrade | grep -i security | awk '{print $2}' | awk '!seen[$0]++'
+        echo -en
+        # shellcheck disable=SC2031
+        ((FAIL++))
+        STATUS=2
+    else
+        echo -en "\e[32m[PASS]\e[0m There are no pending security updates for this image.\n\n"
+        ((PASS++))
     fi
 
     return 1;
@@ -506,16 +455,13 @@ osv=0
 
 if [[ $OS == "Ubuntu" ]]; then
         ost=1
-    if [[ $VER == "22.10" ]] || [[ $VER == "22.04" ]] || [[ $VER == "20.04" ]] || [[ $VER == "18.04" ]] || [[ $VER == "16.04" ]]; then
+    if [[ $VER == "24.04" ]] || [[ $VER == "22.10" ]] || [[ $VER == "22.04" ]] || [[ $VER == "20.04" ]]; then
         osv=1
     fi
 
 elif [[ "$OS" =~ Debian.* ]]; then
     ost=1
     case "$VER" in
-        9)
-            osv=1
-            ;;
         10)
             osv=1
             ;;
@@ -529,41 +475,6 @@ elif [[ "$OS" =~ Debian.* ]]; then
             osv=2
             ;;
     esac
-
-elif [[ $OS == "CentOS Linux" ]]; then
-        ost=1
-    if [[ $VER == "8" ]]; then
-        osv=1
-    elif [[ $VER == "7" ]]; then
-        osv=1
-    elif [[ $VER == "6" ]]; then
-        osv=1
-    else
-        osv=2
-    fi
-elif [[ $OS == "CentOS Stream" ]]; then
-        ost=1
-    if [[ $VER == "8" ]]; then
-        osv=1
-    elif [[ $VER == "9" ]]; then
-        osv=1
-    else
-        osv=2
-    fi
-elif [[ $OS == "Rocky Linux" ]]; then
-        ost=1
-    if [[ $VER =~ 8\. ]] || [[ $VER =~ 9\. ]]; then
-        osv=1
-    else
-        osv=2
-    fi
-elif [[ $OS == "AlmaLinux" ]]; then
-        ost=1
-    if [[ "$VERSION" =~ 8.* ]] || [[ "$VERSION" =~ 9.* ]]; then
-        osv=1
-    else
-        osv=2
-    fi
 else
     ost=0
 fi
