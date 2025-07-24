@@ -3,7 +3,7 @@
     "do_api_token": "{{env `DIGITALOCEAN_API_TOKEN`}}",
     "image_name": "ghost-1click-{{timestamp}}",
     "node_version": "22",
-    "apt_packages": "cloud-image-utils git jq libguestfs-tools make mysql-server make nginx postfix python3-certbot super unzip"
+    "apt_packages": "ca-certificates cloud-image-utils curl git gnupg jq libguestfs-tools make mysql-server make nginx postfix python3-certbot super unzip"
   },
   "sensitive-variables": ["do_api_token"],
   "builders": [
