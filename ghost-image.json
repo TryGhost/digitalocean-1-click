@@ -2,15 +2,15 @@
   "variables": {
     "do_api_token": "{{env `DIGITALOCEAN_API_TOKEN`}}",
     "image_name": "ghost-1click-{{timestamp}}",
-    "node_version": "node_18.x",
-    "apt_packages": "cloud-image-utils git jq libguestfs-tools make mysql-server make nginx postfix python3-certbot super unzip"
+    "node_version": "22",
+    "apt_packages": "ca-certificates cloud-image-utils curl git gnupg jq libguestfs-tools make mysql-server make nginx postfix python3-certbot super unzip"
   },
   "sensitive-variables": ["do_api_token"],
   "builders": [
     {
       "type": "digitalocean",
       "api_token": "{{user `do_api_token`}}",
-      "image": "ubuntu-22-04-x64",
+      "image": "ubuntu-24-04-x64",
       "region": "ams3",
       "size": "s-1vcpu-1gb",
       "ssh_username": "root",
